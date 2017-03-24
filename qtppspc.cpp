@@ -46,8 +46,5 @@ PPSReply qtppspc::push(QString event){
     return toReply(qteasyhttpclient(host+"/push.php?user="+user+"&pass="+pass+"&event="+event,parent));
 }
 PPSReply qtppspc::toReply(QString s){
-    QTextStream qts(&s);
-    char c;
-    qts>>c;
-    return PPSReply(c,QString(&(qts.string()->data()[1])));
+    return PPSReply(s.mid(0,1).toLatin1()[0],s.mid(1));
 }
