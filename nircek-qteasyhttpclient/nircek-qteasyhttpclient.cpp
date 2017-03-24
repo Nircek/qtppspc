@@ -1,13 +1,6 @@
-#include <QObject>
-#include <QApplication>
-#include <QString>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QTimer>
-#include <QEventLoop>
-#include <QNetworkReply>
-
-QString qteasyhttpclient(QString uri,QObject *parent=nullptr){
+#include "nircek-qteasyhttpclient.h"
+QString GitHub::Nircek::qteasyhttpclient(QString uri,QObject *parent){
+    //  https://github.com/Nircek/nircek-qteasyhttpclient
     //inspired by https://github.com/bidstack/bidstack-http/
     QNetworkAccessManager *qnam = new QNetworkAccessManager();
     QNetworkRequest networkRequest(uri);
@@ -35,6 +28,3 @@ QString qteasyhttpclient(QString uri,QObject *parent=nullptr){
     return networkReply->readAll();
     return QString("/%1").arg(status);
 }
-
-
-
