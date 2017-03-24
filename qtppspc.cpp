@@ -1,24 +1,53 @@
 #include "qtppspc.h"
-
-GitHub::Nircek::qtppspc::qtppspc(QString host, QString user, QString pass, QObject *parent):
+using namespace GitHub::Nircek;
+qtppspc::qtppspc(QString host, QString user, QString pass, QObject *parent):
     host(host),user(user),pass(pass),parent(parent){
 
 }
 
-GitHub::Nircek::qtppspc::~qtppspc(){
+qtppspc::~qtppspc(){
 
 }
+QString GitHub::Nircek::readPPSReplyType(PPSReplyType type){
+    switch(type){
+    case good:          return "good";
+    case paramerror:    return "paramERR";
+    case dberror:       return "dbERR";
+    case httperror:     return "httpERR";
+    case error:         return "unexceptedERR";
+    }
+    return "impossibleERR";
+}
 
-GitHub::Nircek::PPSReply::PPSReply(char c, QString s):
+PPSReply::PPSReply(char c, QString s):
     reply(s){
     switch(c){
-    case '0':   PPSReply(good,s);           break;
-    case '-':   PPSReply(paramerror,s);     break;
-    case '+':   PPSReply(dberror,s);        break;
-    case '/':   PPSReply(httperror,s);      break;
-    default:    PPSReply(error,s);          break;
+    case '0':   construct(good,s);          break;
+    case '-':   construct(paramerror,s);    break;
+    case '+':   construct(dberror,s);       break;
+    case '/':   construct(httperror,s);     break;
+    default:    construct(error,s);         break;
     }
 }
 
-GitHub::Nircek::PPSReply::PPSReply(PPSReplyType type, QString s):
-    replyType(type),reply(s){}
+PPSReply::PPSReply(PPSReplyType type, QString s){
+    construct(type,s);
+}
+
+void PPSReply::construct(PPSReplyType type, QString s){
+    replyType=type;
+    reply=s;
+}
+
+PPSReply qtppspc::refresh(){
+    return toReply(qteasyhttpclient(host+"/refresh.php?user="+user+"&pass="+pass,parent));
+}
+PPSReply qtppspc::push(QString event){
+    return toReply(qteasyhttpclient(host+"/push.php?user="+user+"&pass="+pass+"&event="+event,parent));
+}
+PPSReply qtppspc::toReply(QString s){
+    QTextStream qts(&s);
+    char c;
+    qts>>c;
+    return PPSReply(c,QString(&(qts.string()->data()[1])));
+}
